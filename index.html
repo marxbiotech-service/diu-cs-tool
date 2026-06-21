@@ -70,7 +70,7 @@ textarea:focus { outline: none; border-color: #6366f1; background: #fff; }
 </div>
 <div class="api-bar" id="apiBar">
   <label>⚙️ Workers 網址：</label>
-  <input type="url" id="workerUrl" placeholder="https://your-worker.workers.dev" oninput="saveUrl()" />
+  <input type="url" id="workerUrl" value="https://mars-api-proxy.finnchang.workers.dev/" readonly style="background:#f9fafb;color:#6b7280;" />
   <button onclick="testConn()" style="padding:5px 12px;border:1px solid #fcd34d;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;">測試連線</button>
   <span id="apiStatus" class="api-status" style="display:none"></span>
 </div>
@@ -126,8 +126,11 @@ let history = [];
 let busy = false;
 
 window.onload = () => {
-  const u = localStorage.getItem('workerUrl');
-  if (u) document.getElementById('workerUrl').value = u;
+  const s = document.getElementById('apiStatus');
+  s.style.display = 'inline-block';
+  s.textContent = '✅ 已設定';
+  document.getElementById('apiBar').style.background = '#d1fae5';
+  document.getElementById('apiBar').style.borderColor = '#a7f3d0';
 };
 
 function setBrand(b) {
