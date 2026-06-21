@@ -177,7 +177,7 @@ async function send() {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 2000,
         system: buildSys(),
         messages: history
@@ -309,7 +309,7 @@ async function testConn() {
     const res = await fetch(url, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({model:'claude-sonnet-4-6',max_tokens:30,system:'只回覆「連線成功」',messages:[{role:'user',content:'測試'}]})
+      body: JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:30,system:'只回覆「連線成功」',messages:[{role:'user',content:'測試'}]})
     });
     if(res.ok) { s.textContent='✅ 連線成功'; document.getElementById('apiBar').style.background='#d1fae5'; }
     else throw new Error('HTTP ' + res.status);
