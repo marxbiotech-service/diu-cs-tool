@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>火星生技 客服助理</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, 'Noto Sans TC', sans-serif; background: #f0f2f5; height: 100vh; display: flex; flex-direction: column; }
+
+.topbar { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 10px 20px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.topbar h1 { font-size: 15px; font-weight: 700; color: #111; }
+
+.category-bar { background: #fff; border-bottom: 2px solid #e5e7eb; padding: 8px 16px; display: flex; align-items: center; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+.cat-label { font-size: 11px; color: #9ca3af; font-weight: 600; margin-right: 2px; white-space: nowrap; }
+.cat-btn { padding: 5px 12px; border-radius: 16px; border: 1.5px solid #d1d5db; background: #fff; font-size: 12px; cursor: pointer; color: #374151; transition: all 0.2s; white-space: nowrap; font-weight: 500; user-select: none; }
+.cat-btn:hover { border-color: #6366f1; color: #6366f1; }
+.cat-btn.selected.diu { background: #6366f1; border-color: #6366f1; color: #fff; }
+.cat-btn.selected.dual { background: #8b5cf6; border-color: #8b5cf6; color: #fff; }
+.cat-btn.selected.daiji { background: #d97706; border-color: #d97706; color: #fff; }
+.cat-btn.selected.snow-b { background: #0891b2; border-color: #0891b2; color: #fff; }
+.cat-btn.selected.snow-h { background: #0e7490; border-color: #0e7490; color: #fff; }
+.cat-btn.selected.faq { background: #059669; border-color: #059669; color: #fff; }
+.cat-btn.selected.beauty { background: #db2777; border-color: #db2777; color: #fff; }
+
+.token-info { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.token-badge { font-size: 11px; padding: 3px 8px; border-radius: 10px; background: #f3f4f6; color: #6b7280; white-space: nowrap; }
+.token-badge.low { background: #d1fae5; color: #065f46; }
+.token-badge.mid { background: #fef3c7; color: #92400e; }
+.token-badge.high { background: #fee2e2; color: #991b1b; }
+.hint { font-size: 11px; color: #9ca3af; }
+
+.main { display: flex; flex: 1; overflow: hidden; }
+.sidebar { width: 175px; background: #fff; border-right: 1px solid #e5e7eb; padding: 10px; overflow-y: auto; flex-shrink: 0; }
+.sidebar-title { font-size: 11px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; padding: 0 4px; }
+.quick-btn { display: block; width: 100%; text-align: left; padding: 6px 8px; border-radius: 6px; border: none; background: transparent; font-size: 12px; color: #374151; cursor: pointer; margin-bottom: 2px; line-height: 1.4; transition: background 0.15s; }
+.quick-btn:hover { background: #f3f4f6; }
+.sidebar-divider { border: none; border-top: 1px solid #f3f4f6; margin: 8px 0; }
+.clear-btn { padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; font-size: 12px; color: #6b7280; cursor: pointer; width: 100%; transition: all 0.2s; margin-top: 4px; }
+.clear-btn:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+
+.chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.brand-indicator { padding: 6px 16px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; font-size: 11px; color: #6b7280; display: flex; align-items: center; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+
+.messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.msg { max-width: 82%; padding: 10px 14px; border-radius: 12px; font-size: 13.5px; line-height: 1.7; white-space: pre-wrap; }
+.msg.user { align-self: flex-end; background: #6366f1; color: #fff; border-bottom-right-radius: 4px; }
+.msg.assistant { align-self: flex-start; background: #fff; border: 1px solid #e5e7eb; border-bottom-left-radius: 4px; color: #111; }
+.msg.sys { align-self: center; background: #f9fafb; border: 1px dashed #e5e7eb; color: #9ca3af; font-size: 11px; padding: 5px 12px; border-radius: 16px; max-width: 92%; text-align: center; }
+
+.risk-badge { display: inline-block; padding: 2px 7px; border-radius: 8px; font-size: 11px; font-weight: 600; margin-right: 6px; }
+.risk-high { background: #fee2e2; color: #dc2626; }
+.risk-mid { background: #fef3c7; color: #d97706; }
+.risk-low { background: #d1fae5; color: #059669; }
+.copy-btn { padding: 3px 10px; border: 1px solid #e5e7eb; border-radius: 5px; background: #fff; font-size: 11px; color: #6b7280; cursor: pointer; transition: all 0.2s; }
+.copy-btn:hover { background: #f3f4f6; }
+.copy-btn.copied { background: #d1fae5; color: #059669; border-color: #a7f3d0; }
+.msg-wrap { align-self: flex-start; max-width: 82%; }
+.msg-meta { display: flex; align-items: center; gap: 6px; margin-top: 5px; }
+
+.input-area { padding: 12px 16px; background: #fff; border-top: 1px solid #e5e7eb; flex-shrink: 0; }
+.input-row { display: flex; gap: 8px; align-items: flex-end; }
+textarea { flex: 1; padding: 10px 14px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 13.5px; resize: none; font-family: inherit; line-height: 1.5; min-height: 44px; max-height: 140px; transition: border-color 0.2s; background: #f9fafb; }
+textarea:focus { outline: none; border-color: #6366f1; background: #fff; }
+.send-btn { padding: 10px 18px; background: #6366f1; color: #fff; border: none; border-radius: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.send-btn:hover { background: #4f46e5; }
+.send-btn:disabled { background: #c7d2fe; cursor: not-allowed; }
+
+.loading { display: flex; gap: 4px; align-items: center; padding: 12px 14px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: #6366f1; animation: bounce 1.2s infinite; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,100%{transform:translateY(0);opacity:.5} 50%{transform:translateY(-5px);opacity:1} }
+.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #9ca3af; gap: 6px; }
+.empty-icon { font-size: 40px; }
+.no-select-warning { background: #fef3c7; border: 1px solid #fde68a; color: #92400e; font-size: 12px; padding: 6px 14px; border-radius: 8px; text-align: center; margin: 8px 16px 0; flex-shrink: 0; display: none; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🛸 火星生技 客服助理</h1>
+  <span style="font-size:11px;color:#9ca3af;margin-left:4px">可多選類別</span>
+</div>
+
+<div class="category-bar">
+  <span class="cat-label">知識庫：</span>
+  <button class="cat-btn diu selected" onclick="toggleCat('diuHealth', this)">💊 Diu+ 保健</button>
+  <button class="cat-btn beauty" onclick="toggleCat('diuBeauty', this)">✨ Diu+ 保養</button>
+  <button class="cat-btn dual" onclick="toggleCat('diuDual', this)">🌸 雙艙系列</button>
+  <button class="cat-btn daiji" onclick="toggleCat('daijishang', this)">⚡ 大激賞</button>
+  <button class="cat-btn snow-b" onclick="toggleCat('snowBeauty', this)">❄️ 樹飛雪 保養/精油</button>
+  <button class="cat-btn snow-h" onclick="toggleCat('snowHealth', this)">🧤 樹飛雪 保健/護具</button>
+  <button class="cat-btn faq selected" onclick="toggleCat('faqOnly', this)">📚 FAQ+SOP</button>
+  <div class="token-info">
+    <span class="token-badge low" id="tokenBadge">💡 省流</span>
+  </div>
+</div>
+
+<div class="no-select-warning" id="noSelectWarn">⚠️ 請至少選擇一個知識庫類別</div>
+
+<div class="main">
+  <div class="sidebar">
+    <div class="sidebar-title">常見問題</div>
+    <button class="quick-btn" onclick="fill('食用方式/搭配詢問')">📋 食用方式/搭配</button>
+    <button class="quick-btn" onclick="fill('孕婦/哺乳期詢問')">🤰 孕婦/哺乳</button>
+    <button class="quick-btn" onclick="fill('兒童使用詢問')">👶 兒童使用</button>
+    <button class="quick-btn" onclick="fill('產品沒有效果/無感')">😔 沒效果/無感</button>
+    <button class="quick-btn" onclick="fill('食用後不舒服/副作用')">⚠️ 副作用</button>
+    <button class="quick-btn" onclick="fill('疾病史/用藥詢問')">💊 疾病/用藥</button>
+    <button class="quick-btn" onclick="fill('產品成分詢問')">🔬 成分詢問</button>
+    <button class="quick-btn" onclick="fill('產品外觀/品質異常')">🔍 品質異常</button>
+    <button class="quick-btn" onclick="fill('素食/過敏原詢問')">🌿 素食/過敏原</button>
+    <hr class="sidebar-divider">
+    <div class="sidebar-title">客訴 SOP</div>
+    <button class="quick-btn" onclick="fill('吃很久都沒瘦')">⚖️ 吃很久沒瘦</button>
+    <button class="quick-btn" onclick="fill('吃了反而變胖')">📈 反而胖</button>
+    <button class="quick-btn" onclick="fill('拉肚子/腹瀉')">🚽 拉肚子</button>
+    <button class="quick-btn" onclick="fill('便秘沒有改善')">😖 便秘</button>
+    <button class="quick-btn" onclick="fill('心悸/睡不著')">💓 心悸</button>
+    <button class="quick-btn" onclick="fill('要求退貨')">↩️ 退貨</button>
+    <button class="quick-btn" onclick="fill('體重停滯期')">📊 停滯期</button>
+    <hr class="sidebar-divider">
+    <button class="clear-btn" onclick="clearChat()">🗑 清除對話</button>
+  </div>
+
+  <div class="chat-area">
+    <div class="brand-indicator" id="brandIndicator">
+      已選：<span id="selectedLabels" style="color:#6366f1;font-weight:600">Diu+ 保健、FAQ+SOP</span>
+    </div>
+    <div class="messages" id="messages">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">💬</div>
+        <div style="font-size:13px;color:#9ca3af">選擇產品類別（可多選），再貼上客人問題</div>
+        <div style="font-size:11px;color:#d1d5db;margin-top:3px">Enter 送出 ｜ Shift+Enter 換行</div>
+      </div>
+    </div>
+    <div class="input-area">
+      <div class="input-row">
+        <textarea id="inp" placeholder="貼上客人問題..." rows="2" onkeydown="onKey(event)" oninput="resize(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="send()">送出</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const WORKER_URL = 'https://mars-api-proxy-gemini.finnchang.workers.dev/';
+
+const KB_FILES = ['systemPrompt','faqKB','sopKB','diuHealth','diuBeauty','diuDual','daijishang','snowBeauty','snowHealth'];
+let KB = {};
+// 知識庫放在 kb/ 資料夾，頁面開啟時讀取；維護時只要改 kb/*.md，不用動這支程式
+const kbReady = Promise.all(KB_FILES.map(async (k) => {
+  const r = await fetch('kb/' + k + '.md', { cache: 'no-cache' });
+  if (!r.ok) throw new Error('載入 kb/' + k + '.md 失敗（HTTP ' + r.status + '）');
+  KB[k] = await r.text();
+})).then(() => updateStatus()).catch((e) => {
+  addSys('❌ 知識庫載入失敗：' + e.message);
+  throw e;
+});
+
+const CAT_INFO = {
+  diuHealth:  { label: 'Diu+ 保健', kbKey: 'diuHealth' },
+  diuBeauty:  { label: 'Diu+ 保養', kbKey: 'diuBeauty' },
+  diuDual:    { label: '雙艙系列',   kbKey: 'diuDual' },
+  daijishang: { label: '大激賞',     kbKey: 'daijishang' },
+  snowBeauty: { label: '樹飛雪保養/精油', kbKey: 'snowBeauty' },
+  snowHealth: { label: '樹飛雪保健/護具', kbKey: 'snowHealth' },
+  faqOnly:    { label: 'FAQ+SOP',   kbKey: null }
+};
+
+const KB_TITLES = {
+  diuHealth:  'Diu+ 保健食品知識庫',
+  diuBeauty:  'Diu+ 保養品知識庫',
+  diuDual:    '雙艙系列知識庫',
+  daijishang: '大激賞產品知識庫',
+  snowBeauty: '樹飛雪保養/精油知識庫',
+  snowHealth: '樹飛雪保健/護具知識庫',
+};
+
+let selectedCats = new Set(['diuHealth', 'faqOnly']);
+let history = [];
+let busy = false;
+
+function toggleCat(cat, btn) {
+  if (selectedCats.has(cat)) {
+    // 至少保留一個
+    if (selectedCats.size <= 1) return;
+    selectedCats.delete(cat);
+    btn.classList.remove('selected');
+  } else {
+    selectedCats.add(cat);
+    btn.classList.add('selected');
+  }
+  updateStatus();
+}
+
+function updateStatus() {
+  const labels = [...selectedCats].map(c => CAT_INFO[c].label);
+  document.getElementById('selectedLabels').textContent = labels.join('、');
+
+  // 估算 token 量
+  let totalChars = KB.systemPrompt.length + KB.faqKB.length + KB.sopKB.length;
+  selectedCats.forEach(cat => {
+    const key = CAT_INFO[cat].kbKey;
+    if (key && KB[key]) totalChars += KB[key].length;
+  });
+
+  const badge = document.getElementById('tokenBadge');
+  if (totalChars < 20000) {
+    badge.className = 'token-badge low'; badge.textContent = '💡 省流';
+  } else if (totalChars < 40000) {
+    badge.className = 'token-badge mid'; badge.textContent = '⚡ 中量';
+  } else {
+    badge.className = 'token-badge high'; badge.textContent = '🔥 高量';
+  }
+}
+
+function buildSys() {
+  let s = KB.systemPrompt + '\n\n---\n\n';
+  
+  selectedCats.forEach(cat => {
+    const key = CAT_INFO[cat].kbKey;
+    if (key && KB[key]) {
+      s += '## ' + KB_TITLES[key] + '\n' + KB[key] + '\n\n';
+    }
+  });
+
+  // FAQ+SOP 固定加入
+  s += '## FAQ 完整庫（240筆）\n' + KB.faqKB + '\n\n';
+  s += '## 客訴SOP庫\n' + KB.sopKB;
+  return s;
+}
+
+async function send() {
+  const inp = document.getElementById('inp');
+  const txt = inp.value.trim();
+  if (!txt || busy) return;
+
+  if (selectedCats.size === 0) {
+    document.getElementById('noSelectWarn').style.display = 'block';
+    return;
+  }
+  document.getElementById('noSelectWarn').style.display = 'none';
+
+  try { await kbReady; } catch (e) { return; }
+
+  hideEmpty();
+  addMsg('user', txt);
+  inp.value = '';
+  inp.style.height = 'auto';
+  history.push({ role: 'user', content: txt });
+
+  busy = true;
+  document.getElementById('sendBtn').disabled = true;
+  const loader = addLoader();
+
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2000,
+        system: buildSys(),
+        messages: history
+      })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const d = await res.json();
+    const reply = d.content?.[0]?.text || '（無回覆）';
+    removeEl(loader);
+    history.push({ role: 'assistant', content: reply });
+    addReply(reply);
+  } catch (e) {
+    removeEl(loader);
+    addSys('❌ 錯誤：' + e.message);
+  }
+  busy = false;
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function addMsg(type, text) {
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'msg ' + type;
+  d.textContent = text;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addReply(text) {
+  const msgs = document.getElementById('messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap';
+  const d = document.createElement('div');
+  d.className = 'msg assistant';
+  d.textContent = text;
+
+  let badge = '';
+  if (text.includes('需要轉人工') || text.includes('腫瘤') || text.includes('化療') || text.includes('腎功能不全')) {
+    badge = '<span class="risk-badge risk-high">⚠️ 高風險</span>';
+  } else if (text.includes('建議先諮詢醫師') || text.includes('先暫停') || text.includes('先諮詢')) {
+    badge = '<span class="risk-badge risk-mid">⚡ 中風險</span>';
+  } else {
+    badge = '<span class="risk-badge risk-low">✅ 一般</span>';
+  }
+
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'copy-btn';
+  copyBtn.textContent = '📋 複製';
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(text).then(() => {
+      copyBtn.textContent = '✅ 已複製';
+      copyBtn.classList.add('copied');
+      setTimeout(() => { copyBtn.textContent = '📋 複製'; copyBtn.classList.remove('copied'); }, 2000);
+    });
+  };
+
+  const meta = document.createElement('div');
+  meta.className = 'msg-meta';
+  meta.innerHTML = badge;
+  meta.appendChild(copyBtn);
+  wrap.appendChild(d);
+  wrap.appendChild(meta);
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addSys(text) {
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'msg sys';
+  d.textContent = text;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addLoader() {
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'loading';
+  d.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+  return d;
+}
+
+function removeEl(el) { if (el && el.parentNode) el.parentNode.removeChild(el); }
+function hideEmpty() { const e = document.getElementById('emptyState'); if (e) e.remove(); }
+function clearChat() {
+  history = [];
+  document.getElementById('messages').innerHTML = '<div class="empty-state" id="emptyState"><div class="empty-icon">💬</div><div style="font-size:13px;color:#9ca3af">選擇產品類別（可多選），再貼上客人問題</div><div style="font-size:11px;color:#d1d5db;margin-top:3px">Enter 送出 ｜ Shift+Enter 換行</div></div>';
+}
+function fill(text) { const inp = document.getElementById('inp'); inp.value = text; inp.focus(); resize(inp); }
+function onKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }
+function resize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 140) + 'px'; }
+</script>
+</body>
+</html>
